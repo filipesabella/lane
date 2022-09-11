@@ -20,8 +20,6 @@ let tagsCache: Tag[] = null as any;
 export const api = {
   loadTags: async (): Promise<Tag[]> => {
     if (tagsCache === null) {
-      console.log('yeah');
-
       tagsCache = (await supabase
         .from('lane_tags')
         .select()).data as Tag[];

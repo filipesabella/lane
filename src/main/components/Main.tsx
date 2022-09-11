@@ -44,6 +44,6 @@ export const Main = () => {
     <button
       disabled={text === '' || saving}
       className="save"
-    onClick={save}>{saving ? 'saving ...' : 'save'}</button>
+      onClick={save}>{saving ? 'saving ...' : 'save'}</button>
   </div>;
 };
