@@ -13,7 +13,7 @@ export const TagSelector = ({ selectedTags, onChange }: Props) => {
 
   useEffect(() => {
     api.loadTags().then(tags =>
-      setTags((tags.length === 0 ? [{ text: 'create a tag' }] : tags)));
+      setTags((tags.length === 0 ? ['create a tag'] : tags)));
   }, []);
 
   const [criteria, setCriteria] = useState('');
@@ -23,7 +23,7 @@ export const TagSelector = ({ selectedTags, onChange }: Props) => {
   const tagToggle = (tag: Tag, selected: boolean) => {
     const tags = selected
       ? selectedTags.concat(tag)
-      : selectedTags.filter(({ text }) => text !== tag.text);
+      : selectedTags.filter(t => t !== tag);
 
     onChange(tags);
 
@@ -31,23 +31,23 @@ export const TagSelector = ({ selectedTags, onChange }: Props) => {
   };
 
   const addNew = () => {
-    const possibleExistingTag = tags.find(({ text }) =>
-      text.toLowerCase() === criteria.toLowerCase());
+    const possibleExistingTag = tags.find(tag =>
+      tag.toLowerCase() === criteria.toLowerCase());
 
     if (possibleExistingTag) {
       const alreadySelected = !!selectedTags
-        .find(({ text }) => text === possibleExistingTag.text);
+        .find(tag => tag === possibleExistingTag);
       !alreadySelected && onChange(selectedTags.concat(possibleExistingTag));
     } else {
-      const newTag = { text: criteria };
+      const newTag = criteria;
       setTags([newTag, ...tags]);
       onChange([newTag, ...selectedTags]);
     }
     setCriteria('');
   };
 
-  const removeTag = (t: Tag) => onChange(selectedTags
-    .filter(({ text }) => text !== t.text));
+  const removeTag = (tag: Tag) => onChange(selectedTags
+    .filter(tagg => tagg !== tag));
 
   const keyPressed = (key: string) => {
     if (key === 'Enter') {
@@ -73,9 +73,9 @@ export const TagSelector = ({ selectedTags, onChange }: Props) => {
     onFocus={() => setShowingDropdown(true)}>
     <div className="input-container">
       <div className="selected-tags">
-        {selectedTags.map(t => <span
-          key={t.text}
-          onClick={() => removeTag(t)}>{t.text}</span>)}
+        {selectedTags.map(tag => <span
+          key={tag}
+          onClick={() => removeTag(tag)}>{tag}</span>)}
       </div>
       <input
         className="criteria"
@@ -94,10 +94,10 @@ export const TagSelector = ({ selectedTags, onChange }: Props) => {
         onClick={addNew}>→ Add {criteria}</li>}
       {tags
         .filter(t => filterTag(t, criteria))
-        .map(t => <Tag key={t.text}
-          tag={t}
+        .map(tag => <Tag key={tag}
+          tag={tag}
           onChange={tagToggle}
-          selected={!!selectedTags.find(({ text }) => text === t.text)} />)}
+          selected={!!selectedTags.find(tagg => tagg === tag)} />)}
     </ul>}
   </div>;
 };
@@ -110,13 +110,13 @@ type TagProps = {
 
 const Tag = ({ tag, selected, onChange }: TagProps) => {
   return <li
-    key={tag.text}
+    key={tag}
     onClick={() => onChange(tag, !selected)}>
     <input type="checkbox" checked={selected} readOnly />
-    <label>{tag.text}</label>
+    <label>{tag}</label>
   </li>;
 };
 
 function filterTag(t: Tag, criteria: string): boolean {
-  return t.text.toLowerCase().includes(criteria.toLowerCase());
+  return t.toLowerCase().includes(criteria.toLowerCase());
 }

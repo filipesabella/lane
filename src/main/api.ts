@@ -8,9 +8,7 @@ export interface DBNote {
   tags: string[];
 }
 
-export interface Tag {
-  text: string;
-}
+export type Tag = string;
 
 const { supabaseUrl, supabaseKey } = storage.loadSettings();
 
@@ -58,7 +56,7 @@ export const api = {
     await supabase.from('lane_notes').insert({
       id: uuid(),
       text,
-      tags: tags.map(t => t.text),
+      tags,
     });
   }
 };
