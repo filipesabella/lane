@@ -14,14 +14,18 @@ export const Main = () => {
   const [tags, setTags] = useState<Tag[]>(JSON.parse(
     localStorage.getItem('lane_tags') || '[]'));
   const onChangeTags = (tags: Tag[]) => {
-    console.log(tags);
-
     setTags(tags);
     localStorage.setItem('lane_tags', JSON.stringify(tags));
   };
 
-  const save = () => {
-    api.save(text, tags);
+  const [saving, setSaving] = useState(false);
+  const save = async () => {
+    setSaving(true);
+
+    await api.save(text, tags);
+
+    setSaving(false);
+    onChangeText('');
   };
 
   return <div className="main">
@@ -29,14 +33,14 @@ export const Main = () => {
       <textarea autoFocus
         placeholder="type away"
         onChange={e => onChangeText(e.target.value)}
-        defaultValue={text} />
+        value={text} />
     </div>
     <TagSelector
       selectedTags={tags}
       onChange={onChangeTags} />
     <button
-      disabled={text === ''}
+      disabled={text === '' || saving}
       className="save"
-    onClick={save}>save</button>
+    onClick={save}>{saving ? 'saving ...' : 'save'}</button>
   </div>;
 };
