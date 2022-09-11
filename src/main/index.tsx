@@ -7,9 +7,10 @@ import '../style/index.less';
 import { App } from './components/App';
 
 createRoot(document.getElementById('root')!)
-  .render(<React.StrictMode>
-    <BrowserRouter basename={process.env.BASE_PATH ?? '/'}>
-      <App />
-    </BrowserRouter>
-  </React.StrictMode>);
+  .render(
+    <React.StrictMode>
+      <BrowserRouter basename={process.env.BASE_PATH ?? '/'}>
+        <App />
+      </BrowserRouter>
+    </React.StrictMode>);
 
