@@ -18,7 +18,7 @@ export const Settings = () => {
   };
 
   return <div className="settings">
-    <p>Settings</p>
+    <h1>Settings</h1>
     <div className="fields">
       <label>Supabase URL</label>
       <input
@@ -31,7 +31,7 @@ export const Settings = () => {
         value={supabaseKey}
         onChange={e => setSupabaseKey(e.currentTarget.value)}></input>
     </div>
-    <button onClick={_ => save()}>Save</button>
+    <button onClick={_ => save()}>save</button>
   </div>;
 };
 

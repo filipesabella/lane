@@ -31,13 +31,13 @@ const supabase = createClient(supabaseUrl || 'error', supabaseKey || 'error');
 
 export const api = {
   loadConfig: async (): Promise<Config> => {
-    const result = await supabase
-      .from('timeline_config')
-      .select('config')
-      .eq('id', 1)
-      .single();
+    // const result = await supabase
+    //   .from('timeline_config')
+    //   .select('config')
+    //   .eq('id', 1)
+    //   .single();
 
-    return result.data.config;
+    return {} as any; //result.data.config;
   },
 
   loadEvents: async (): Promise<Event[]> => {
