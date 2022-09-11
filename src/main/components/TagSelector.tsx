@@ -1,36 +1,33 @@
 import * as React from 'react';
 import { useEffect, useState } from 'react';
 import '../../style/TagSelector.less';
+import { api, Tag } from '../api';
 
-type Tag = {
-  id: string;
-  text: string;
-  visible: boolean;
+type Props = {
+  selectedTags: Tag[];
+  onChange: (tags: Tag[]) => void;
 };
 
-export const TagSelector = () => {
-  const [tags, setTags] = useState<Tag[]>(testTags
-    .map((t: any) => ({ ...t, visible: true, })));
+export const TagSelector = ({ selectedTags, onChange }: Props) => {
+  const [tags, setTags] = useState<Tag[]>([]);
 
-  const [selected, setSelected] = useState<Tag[]>([]);
+  useEffect(() => {
+    api.loadTags().then(tags =>
+      setTags((tags.length === 0 ? [{ text: 'create a tag' }] : tags)));
+  }, []);
 
   const [criteria, setCriteria] = useState('');
   const [showingDropdown, setShowingDropdown] = useState(false);
 
-  const changeSearch = (criteria: string) => {
-    setTags(tags => tags.map(tag => ({
-      ...tag,
-      visible: tag.text.toLowerCase().includes(criteria.toLowerCase()),
-    })));
-    setCriteria(criteria);
-  };
 
   const tagToggle = (tag: Tag, selected: boolean) => {
-    setSelected(s => selected
-      ? s.concat(tag)
-      : s.filter(({ id }) => id !== tag.id));
+    const tags = selected
+      ? selectedTags.concat(tag)
+      : selectedTags.filter(({ text }) => text !== tag.text);
 
-    changeSearch('');
+    onChange(tags);
+
+    setCriteria('');
   };
 
   const addNew = () => {
@@ -38,23 +35,19 @@ export const TagSelector = () => {
       text.toLowerCase() === criteria.toLowerCase());
 
     if (possibleExistingTag) {
-      const alreadySelected = !!selected
-        .find(({ id }) => id === possibleExistingTag.id);
-      !alreadySelected && setSelected(selected.concat(possibleExistingTag));
+      const alreadySelected = !!selectedTags
+        .find(({ text }) => text === possibleExistingTag.text);
+      !alreadySelected && onChange(selectedTags.concat(possibleExistingTag));
     } else {
-      const newTag = {
-        id: uuid(),
-        text: criteria,
-        visible: true,
-      };
+      const newTag = { text: criteria };
       setTags([newTag, ...tags]);
-      setSelected([newTag, ...selected]);
+      onChange([newTag, ...selectedTags]);
     }
-    changeSearch('');
+    setCriteria('');
   };
 
-  const removeTag = (t: Tag) => setSelected(selected
-    .filter(({ id }) => id !== t.id));
+  const removeTag = (t: Tag) => onChange(selectedTags
+    .filter(({ text }) => text !== t.text));
 
   const keyPressed = (key: string) => {
     if (key === 'Enter') {
@@ -80,16 +73,16 @@ export const TagSelector = () => {
     onFocus={() => setShowingDropdown(true)}>
     <div className="input-container">
       <div className="selected-tags">
-        {selected.map(t => <span
-          key={t.id}
+        {selectedTags.map(t => <span
+          key={t.text}
           onClick={() => removeTag(t)}>{t.text}</span>)}
       </div>
       <input
         className="criteria"
-        placeholder="search tags"
+        placeholder={tags.length === 0 ? 'loading tags' : 'search tags'}
         onKeyUp={e => keyPressed(e.key)}
         value={criteria}
-        onChange={e => changeSearch(e.target.value)} />
+        onChange={e => setCriteria(e.target.value)} />
     </div>
     {<ul
       className="available-tags"
@@ -99,10 +92,12 @@ export const TagSelector = () => {
       }}>
       {criteria && <li className="add-new"
         onClick={addNew}>→ Add {criteria}</li>}
-      {tags.filter(t => t.visible).map(t => <Tag key={t.id}
-        tag={t}
-        onChange={tagToggle}
-        selected={!!selected.find(({ id }) => id === t.id)} />)}
+      {tags
+        .filter(t => filterTag(t, criteria))
+        .map(t => <Tag key={t.text}
+          tag={t}
+          onChange={tagToggle}
+          selected={!!selectedTags.find(({ text }) => text === t.text)} />)}
     </ul>}
   </div>;
 };
@@ -115,56 +110,13 @@ type TagProps = {
 
 const Tag = ({ tag, selected, onChange }: TagProps) => {
   return <li
-    key={tag.id}
+    key={tag.text}
     onClick={() => onChange(tag, !selected)}>
     <input type="checkbox" checked={selected} readOnly />
     <label>{tag.text}</label>
   </li>;
 };
 
-function uuid() {
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
-    const r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
-    return v.toString(16);
-  });
-}
-
-
-const testTags: any = [{
-  id: '1',
-  text: 'one',
-}, {
-  id: '2',
-  text: 'two',
-}, {
-  id: '3',
-  text: 'three',
-}, {
-  id: '4',
-  text: 'four',
-}, {
-  id: '5',
-  text: 'five',
-}, {
-  id: '6',
-  text: 'six',
-}, {
-  id: '7',
-  text: 'seven',
-}, {
-  id: '8',
-  text: 'eight',
-}, {
-  id: '9',
-  text: 'nine',
-}, {
-  id: '10',
-  text: 'ten',
-},];
-
-for (let index = 20; index < 30; index++) {
-  testTags.push({
-    id: String(index),
-    text: String(Math.random()),
-  });
+function filterTag(t: Tag, criteria: string): boolean {
+  return t.text.toLowerCase().includes(criteria.toLowerCase());
 }

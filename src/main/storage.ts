@@ -6,7 +6,7 @@ export interface Settings {
 const localStorageKey = 'lane_settings';
 
 export const storage = {
-  load: (): Settings => {
+  loadSettings: (): Settings => {
     const settings = JSON.parse(
       localStorage.getItem(localStorageKey) || '{}');
     return {
@@ -16,7 +16,7 @@ export const storage = {
     };
   },
 
-  store: (settings: Settings): void => {
+  storeSettings: (settings: Settings): void => {
     localStorage.setItem(localStorageKey, JSON.stringify(settings));
   }
 };

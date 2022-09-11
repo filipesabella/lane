@@ -8,13 +8,13 @@ export const Settings = () => {
   const [supabaseKey, setSupabaseKey] = useState('');
 
   useEffect(() => {
-    const { supabaseUrl, supabaseKey } = storage.load();
+    const { supabaseUrl, supabaseKey } = storage.loadSettings();
     setSupabaseUrl(supabaseUrl);
     setSupabaseKey(supabaseKey);
   }, []);
 
   const save = () => {
-    storage.store({ supabaseUrl, supabaseKey });
+    storage.storeSettings({ supabaseUrl, supabaseKey });
   };
 
   return <div className="settings">

@@ -1,37 +1,42 @@
 import * as React from 'react';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import '../../style/Main.less';
-import { api, Config } from '../api';
-import { icons } from './icons';
+import { api, Tag } from '../api';
 import { TagSelector } from './TagSelector';
 
 export const Main = () => {
-  const [config, setConfig] = useState(null as Config | null);
+  const [text, setText] = useState(localStorage.getItem('lane_text') || '');
+  const onChangeText = (text: string) => {
+    setText(text);
+    localStorage.setItem('lane_text', text);
+  };
 
-  useEffect(() => {
-    api.loadConfig().then(setConfig);
-  }, []);
+  const [tags, setTags] = useState<Tag[]>(JSON.parse(
+    localStorage.getItem('lane_tags') || '[]'));
+  const onChangeTags = (tags: Tag[]) => {
+    console.log(tags);
 
-  const [note, setNote] = useState(localStorage.getItem('lane-note') || '');
-  const onChange = (note: string) => {
-    setNote(note);
-    localStorage.setItem('lane-note', note);
+    setTags(tags);
+    localStorage.setItem('lane_tags', JSON.stringify(tags));
+  };
+
+  const save = () => {
+    api.save(text, tags);
   };
 
   return <div className="main">
-    {!config &&
-      <div className="loadingAnimation">{icons.loadingAnimation}</div>}
-    {config && <>
-      <div className="textarea-container">
-        <textarea autoFocus
-          placeholder="type away"
-          onChange={e => onChange(e.target.value)}
-          defaultValue={note} />
-      </div>
-      <TagSelector />
-      <button
-        disabled={note === ''}
-        className="save">save</button>
-    </>}
+    <div className="textarea-container">
+      <textarea autoFocus
+        placeholder="type away"
+        onChange={e => onChangeText(e.target.value)}
+        defaultValue={text} />
+    </div>
+    <TagSelector
+      selectedTags={tags}
+      onChange={onChangeTags} />
+    <button
+      disabled={text === ''}
+      className="save"
+    onClick={save}>save</button>
   </div>;
 };
