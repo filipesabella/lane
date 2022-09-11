@@ -16,13 +16,20 @@ const { supabaseUrl, supabaseKey } = storage.loadSettings();
 
 const supabase = createClient(supabaseUrl || 'error', supabaseKey || 'error');
 
+// early optimisation to save my free tier quota
+let tagsCache: Tag[] = null as any;
+
 export const api = {
   loadTags: async (): Promise<Tag[]> => {
-    const result = await supabase
-      .from('lane_tags')
-      .select();
+    if (tagsCache === null) {
+      console.log('yeah');
 
-    return result.data as Tag[];
+      tagsCache = (await supabase
+        .from('lane_tags')
+        .select()).data as Tag[];
+    }
+
+    return tagsCache;
   },
 
   loadEvents: async (): Promise<Event[]> => {
@@ -46,6 +53,8 @@ export const api = {
   },
 
   save: async (text: string, tags: Tag[]): Promise<void> => {
+    tagsCache = null as any;
+
     await supabase.from('lane_notes').insert({
       id: uuid(),
       text,
