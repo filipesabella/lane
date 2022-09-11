@@ -4,7 +4,7 @@ import '../../style/TagSelector.less';
 
 type Tag = {
   id: string;
-  label: string;
+  text: string;
   visible: boolean;
 };
 
@@ -20,7 +20,7 @@ export const TagSelector = () => {
   const changeSearch = (criteria: string) => {
     setTags(tags => tags.map(tag => ({
       ...tag,
-      visible: tag.label.toLowerCase().includes(criteria.toLowerCase()),
+      visible: tag.text.toLowerCase().includes(criteria.toLowerCase()),
     })));
     setCriteria(criteria);
   };
@@ -34,8 +34,8 @@ export const TagSelector = () => {
   };
 
   const addNew = () => {
-    const possibleExistingTag = tags.find(({ label }) =>
-      label.toLowerCase() === criteria.toLowerCase());
+    const possibleExistingTag = tags.find(({ text }) =>
+      text.toLowerCase() === criteria.toLowerCase());
 
     if (possibleExistingTag) {
       const alreadySelected = !!selected
@@ -44,7 +44,7 @@ export const TagSelector = () => {
     } else {
       const newTag = {
         id: uuid(),
-        label: criteria,
+        text: criteria,
         visible: true,
       };
       setTags([newTag, ...tags]);
@@ -82,7 +82,7 @@ export const TagSelector = () => {
       <div className="selected-tags">
         {selected.map(t => <span
           key={t.id}
-          onClick={() => removeTag(t)}>{t.label}</span>)}
+          onClick={() => removeTag(t)}>{t.text}</span>)}
       </div>
       <input
         className="criteria"
@@ -118,7 +118,7 @@ const Tag = ({ tag, selected, onChange }: TagProps) => {
     key={tag.id}
     onClick={() => onChange(tag, !selected)}>
     <input type="checkbox" checked={selected} readOnly />
-    <label>{tag.label}</label>
+    <label>{tag.text}</label>
   </li>;
 };
 
@@ -132,39 +132,39 @@ function uuid() {
 
 const testTags: any = [{
   id: '1',
-  label: 'one',
+  text: 'one',
 }, {
   id: '2',
-  label: 'two',
+  text: 'two',
 }, {
   id: '3',
-  label: 'three',
+  text: 'three',
 }, {
   id: '4',
-  label: 'four',
+  text: 'four',
 }, {
   id: '5',
-  label: 'five',
+  text: 'five',
 }, {
   id: '6',
-  label: 'six',
+  text: 'six',
 }, {
   id: '7',
-  label: 'seven',
+  text: 'seven',
 }, {
   id: '8',
-  label: 'eight',
+  text: 'eight',
 }, {
   id: '9',
-  label: 'nine',
+  text: 'nine',
 }, {
   id: '10',
-  label: 'ten',
+  text: 'ten',
 },];
 
 for (let index = 20; index < 30; index++) {
   testTags.push({
     id: String(index),
-    label: String(Math.random()),
+    text: String(Math.random()),
   });
 }
