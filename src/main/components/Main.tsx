@@ -12,7 +12,11 @@ export const Main = () => {
     api.loadConfig().then(setConfig);
   }, []);
 
-  const [value, setValue] = useState('');
+  const [note, setNote] = useState(localStorage.getItem('lane-note') || '');
+  const onChange = (note: string) => {
+    setNote(note);
+    localStorage.setItem('lane-note', note);
+  };
 
   return <div className="main">
     {!config &&
@@ -21,11 +25,12 @@ export const Main = () => {
       <div className="textarea-container">
         <textarea autoFocus
           placeholder="type away"
-          onChange={e => setValue(e.target.value)} />
+          onChange={e => onChange(e.target.value)}
+          defaultValue={note} />
       </div>
       <TagSelector />
       <button
-        disabled={value === ''}
+        disabled={note === ''}
         className="save">save</button>
     </>}
   </div>;
