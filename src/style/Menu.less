@@ -1,0 +1,28 @@
+#app>.menu {
+  text-align: center;
+  padding: .5em;
+
+  a {
+    margin-right: 1em;
+
+    &:last-child {
+      margin-right: 0;
+    }
+  }
+
+  a.active svg {
+    stroke: var(--button-bg-color-lighter);
+  }
+
+  svg {
+    width: 32px;
+    height: 32px;
+    fill: none;
+    stroke: var(--button-bg-color);
+    stroke-width: 1;
+
+    &.graph {
+      stroke-width: 2;
+    }
+  }
+}

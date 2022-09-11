@@ -1,0 +1,47 @@
+.settings {
+  flex: 1;
+
+  background: var(--app-bg-color);
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
+
+  button {
+    margin: 0;
+    border: none;
+    font-size: 1.5em;
+    background: var(--button-bg-color);
+    color: var(--text-color);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: '-';
+  }
+
+  >p {
+    font-size: 2em;
+    background: var(--button-bg-color-lighter);
+    margin-bottom: .25em;
+    text-align: center;
+  }
+
+  .fields {
+    padding: 1em;
+    display: grid;
+    grid-template-columns: [labels] minmax(auto, 1fr) [controls] 3fr;
+    grid-auto-flow: row;
+    grid-gap: 1em;
+    align-items: normal;
+
+    >label {
+      grid-column: labels;
+      white-space: nowrap;
+      flex: 1;
+    }
+
+    >input,
+    >select,
+    >.multiField {
+      grid-column: controls;
+    }
+  }
+}

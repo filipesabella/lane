@@ -1,0 +1,26 @@
+#app {
+  height: 100vh;
+  width: 100%;
+  max-width: 40em;
+  margin: auto;
+  background: var(--app-bg-color);
+  display: flex;
+  flex-direction: column;
+
+  .slide-routes {
+    flex: 1;
+  }
+
+  .loadingAnimation {
+    width: 100%;
+    text-align: center;
+
+    svg {
+      width: 2em;
+
+      rect {
+        fill: var(--button-bg-color);
+      }
+    }
+  }
+}

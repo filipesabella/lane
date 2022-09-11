@@ -1,0 +1,16 @@
+{
+  "name": "Timeline",
+  "short_name": "Timeline",
+  "description": "Record your life",
+  "display": "standalone",
+  "start_url": "index.html",
+  "background_color": "#527a66",
+  "theme_color": "#527a66",
+  "icons": [
+    {
+      "src": "favicon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
