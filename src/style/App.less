@@ -6,21 +6,11 @@
   background: var(--bg-color);
   display: flex;
   flex-direction: column;
+  position: relative;
 
-  .slide-routes {
-    flex: 1;
-  }
-
-  .loadingAnimation {
-    width: 100%;
-    text-align: center;
-
-    svg {
-      width: 2em;
-
-      rect {
-        fill: var(--bg-color-lighter);
-      }
-    }
+  .toaster {
+    background-color: var(--bg-color-lighter);
+    color: var(--text-color);
+    border-radius: 3px;
   }
 }

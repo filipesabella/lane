@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { useState } from 'react';
+import toast from 'react-hot-toast';
 import '../../style/Main.less';
 import { api, Tag } from '../api';
 import { TagSelector } from './TagSelector';
@@ -26,6 +27,8 @@ export const Main = () => {
 
     setSaving(false);
     onChangeText('');
+
+    toast('Saved');
   };
 
   return <div className="main">
