@@ -22,13 +22,19 @@ export const Main = () => {
   const [saving, setSaving] = useState(false);
   const save = async () => {
     setSaving(true);
-
-    await api.save(text, tags);
-
-    setSaving(false);
-    onChangeText('');
-
-    toast('Saved');
+    toast.promise(api.save(text, tags), {
+      loading: 'Saving',
+      success: 'Saved',
+      error: 'Error when saving',
+    }, {
+      success: {
+        duration: 1000,
+        icon: null,
+      },
+    }).then(() => {
+      setSaving(false);
+      onChangeText('');
+    });
   };
 
   return <div className="main">
