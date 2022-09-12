@@ -27,20 +27,21 @@ let allTags: Tag[] = null as any;
 // generated using the sequentialUUID forcing the date to 1970
 const oldUUID = '00002a30-7177-4240-9e2d-c7437ea12e1a';
 
+// configured all the all in supabase
+const maxResultsPerCall = 100;
+
+const localStorateNotesKey = 'lane_notes';
+const supabaseNotesTable = 'lane_notes';
+
 export const api = {
   sync: async (): Promise<void> => {
     const localNotes: Note[] = JSON.parse(localStorage
-      .getItem('lane_notes') || '[]');
+      .getItem(localStorateNotesKey) || '[]');
     const mostRecentLocalNote = localNotes.reduce((mostRecent, note) => {
       return note.id > mostRecent ? note.id : mostRecent;
     }, oldUUID);
 
-    // TODO deal with supabase pagination
-    const result = await supabase
-      .from('lane_notes')
-      .select()
-      .gt('id', mostRecentLocalNote)
-      .order('created_at', { ascending: true });
+    const result = await fetchAll(mostRecentLocalNote);
 
     const newNotes = await Promise.all(((result.data || []) as Note[])
       .map<Promise<Note>>(async dbNote => ({
@@ -53,7 +54,7 @@ export const api = {
     allTags = [...new Set(allNotes
       .reduce((tags, n) => tags.concat(n.tags), [] as Tag[]))];
 
-    localStorage.setItem('lane_notes',
+    localStorage.setItem(localStorateNotesKey,
       JSON.stringify(localNotes.concat(newNotes)));
   },
   loadTags: (): Tag[] => {
@@ -67,7 +68,7 @@ export const api = {
 
     const id = sequentialUUID();
 
-    await supabase.from('lane_notes').insert({
+    await supabase.from(supabaseNotesTable).insert({
       id,
       text: await encrypt(text),
       tags,
@@ -82,6 +83,22 @@ export const api = {
     });
   }
 };
+
+async function fetchAll(id: string): Promise<any> {
+  const result = await supabase
+    .from(supabaseNotesTable)
+    .select()
+    .gt('id', id)
+    .order('id', { ascending: true });
+
+  if (result.data && result.data.length >= maxResultsPerCall) {
+    const next = await fetchAll(result.data[result.data.length - 1].id);
+    result.data = result.data.concat(next ? next.data : []);
+    return result;
+  } else {
+    return result;
+  }
+}
 
 // https://github.com/maxtomczyk/sequential-uuid
 function sequentialUUID() {
