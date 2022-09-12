@@ -1,16 +1,23 @@
 import { createClient } from '@supabase/supabase-js';
+import * as encryption from './lib/encryption';
 import { storage } from './storage';
 
-export interface DBNote {
+export interface Note {
   id: string;
-  creation_date: string;
+  created_at: string;
   text: string;
   tags: string[];
 }
 
 export type Tag = string;
 
-const { supabaseUrl, supabaseKey } = storage.loadSettings();
+const {
+  supabaseUrl,
+  supabaseKey,
+  encryptionPassword, } = storage.loadSettings();
+
+const encrypt = encryption.encrypt(encryptionPassword);
+const decrypt = encryption.decrypt(encryptionPassword);
 
 const supabase = createClient(supabaseUrl || 'error', supabaseKey || 'error');
 
@@ -20,41 +27,48 @@ let tagsCache: Tag[] = null as any;
 export const api = {
   loadTags: async (): Promise<Tag[]> => {
     if (tagsCache === null) {
-      tagsCache = (await supabase
+      const result = await supabase
         .from('lane_tags')
-        .select()).data as Tag[];
+        .select() as any;
+
+      const encryptedTags = result.data.map((row: any) => row.text);
+
+      tagsCache = await Promise.all(
+        encryptedTags.map(decrypt));
     }
 
     return tagsCache;
   },
 
-  loadEvents: async (): Promise<Event[]> => {
-    // const result = await supabase
-    //   .from('timeline_events')
-    //   .select()
-    //   .gte('event_date', lastWeek())
-    //   .order('event_date', { ascending: true });
+  loadNotes: async (): Promise<Note[]> => {
+    const result = await supabase
+      .from('lane_notes')
+      .select()
+      .order('created_at', { ascending: true });
 
-    // return (result.data || []).map((row: any) => {
-    //   const e: Event = {
-    //     id: row.id,
-    //     creation_date: row.creation_date,
-    //     event_date: row.event_date,
-    //     label: row.label,
-    //     metadata: row.metadata,
-    //   };
-    //   return e;
-    // });
-    return [];
+    return await Promise.all((result.data || []).map(async (row: any) => {
+      const text = await decrypt(row.text) as string;
+      const tags = await Promise.all(row.tags.map(decrypt)) as Tag[];
+
+      const e: Note = {
+        id: row.id,
+        created_at: row.created_at,
+        text,
+        tags,
+      };
+      return e;
+    }));
   },
 
   save: async (text: string, tags: Tag[]): Promise<void> => {
     tagsCache = null as any;
 
+    const encryptedTags = await Promise.all(tags.map(encrypt));
+
     await supabase.from('lane_notes').insert({
       id: uuid(),
-      text,
-      tags,
+      text: await encrypt(text),
+      tags: encryptedTags,
     });
   }
 };

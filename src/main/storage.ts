@@ -1,6 +1,7 @@
 export interface Settings {
   supabaseUrl: string;
   supabaseKey: string;
+  encryptionPassword: string;
 }
 
 const localStorageKey = 'lane_settings';
@@ -12,6 +13,7 @@ export const storage = {
     return {
       supabaseUrl: '',
       supabaseKey: '',
+      encryptionPassword: '',
       ...settings,
     };
   },
