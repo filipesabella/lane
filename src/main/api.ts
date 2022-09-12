@@ -21,48 +21,62 @@ const decrypt = encryption.decrypt(encryptionPassword);
 
 const supabase = createClient(supabaseUrl || 'error', supabaseKey || 'error');
 
-// early optimisation to save my free tier quota
-let tagsCache: Tag[] = null as any;
+let allNotes: Note[] = null as any;
+let allTags: Tag[] = null as any;
 
 export const api = {
-  loadTags: async (): Promise<Tag[]> => {
-    if (tagsCache === null) {
-      const result = await supabase
-        .from('lane_tags')
-        .select() as any;
+  sync: async (): Promise<void> => {
+    const localNotes: Note[] = JSON.parse(localStorage
+      .getItem('lane_notes') || '[]');
+    const mostRecentLocalNote = localNotes.reduce((mostRecent, note) => {
+      const date = new Date(note.created_at);
+      return date > mostRecent ? date : mostRecent;
+    }, new Date(1900, 0, 1));
 
-      tagsCache = result.data.map((row: any) => row.text)
-    }
-
-    return tagsCache;
-  },
-
-  loadNotes: async (): Promise<Note[]> => {
+    // TODO deal with supabase pagination
     const result = await supabase
       .from('lane_notes')
       .select()
+      .gt('created_at', mostRecentLocalNote.toISOString())
       .order('created_at', { ascending: true });
 
-    return await Promise.all((result.data || []).map(async (row: any) => {
-      const text = await decrypt(row.text) as string;
-      const tags = row.tags as Tag[];
+    const newNotes = await Promise.all((result.data as Note[])
+      .map<Promise<Note>>(async dbNote => ({
+        ...dbNote,
+        text: await decrypt(dbNote.text),
+      })));
 
-      const e: Note = {
-        id: row.id,
-        created_at: row.created_at,
-        text,
-        tags,
-      };
-      return e;
-    }));
+    allNotes = localNotes.concat(newNotes);
+
+    allTags = [...new Set(allNotes
+      .reduce((tags, n) => tags.concat(n.tags), [] as Tag[]))];
+
+    localStorage.setItem('lane_notes',
+      JSON.stringify(localNotes.concat(newNotes)));
   },
-
+  loadTags: async (): Promise<Tag[]> => {
+    return allTags;
+  },
+  loadNotes: async (): Promise<Note[]> => {
+    return allNotes;
+  },
   save: async (text: string, tags: Tag[]): Promise<void> => {
-    tagsCache = null as any;
+    // surely syncing by hand will lead to no bugs
+
+    const id = uuid();
+
     await supabase.from('lane_notes').insert({
-      id: uuid(),
+      id,
       text: await encrypt(text),
-      tags: tags,
+      tags,
+    });
+
+    allTags = [...new Set(allTags.concat(tags))];
+    allNotes.concat({
+      id,
+      created_at: new Date().toISOString(),
+      text,
+      tags,
     });
   }
 };
