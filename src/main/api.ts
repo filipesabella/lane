@@ -47,6 +47,7 @@ export const api = {
       .map<Promise<Note>>(async dbNote => ({
         ...dbNote,
         text: await decrypt(dbNote.text),
+        tags: await Promise.all(dbNote.tags.map(decrypt)),
       })));
 
     allNotes = localNotes.concat(newNotes);
@@ -71,7 +72,7 @@ export const api = {
     await supabase.from(supabaseNotesTable).insert({
       id,
       text: await encrypt(text),
-      tags,
+      tags: await Promise.all(tags.map(encrypt)),
     });
 
     allTags = [...new Set(allTags.concat(tags))];
