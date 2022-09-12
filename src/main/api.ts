@@ -75,12 +75,14 @@ export const api = {
     });
 
     allTags = [...new Set(allTags.concat(tags))];
-    allNotes.concat({
+    allNotes = allNotes.concat({
       id,
       created_at: new Date().toISOString(),
       text,
       tags,
     });
+
+    localStorage.setItem(localStorateNotesKey, JSON.stringify(allNotes));
   }
 };
 
