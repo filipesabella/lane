@@ -64,12 +64,12 @@ export const Main = () => {
       <select className="city" defaultValue={''}
         onChange={e => setCity(e.target.value)}>
         <option value="" disabled hidden>Choose city ...</option>
-        {cityTags.map(t => <option>{t}</option>)}
+        {cityTags.map(t => <option key={t}>{t}</option>)}
       </select>
       <select className="place" defaultValue={''}
         onChange={e => setPlace(e.target.value)}>
         <option value="" disabled hidden>Choose place ...</option>
-        {placeTags.map(t => <option>{t}</option>)}
+        {placeTags.map(t => <option key={t}>{t}</option>)}
       </select>
     </div>
     <button
