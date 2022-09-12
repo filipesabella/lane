@@ -17,8 +17,39 @@
     }
   }
 
-  .tag-selector {
+  .tags-container {
+    display: grid;
+    grid-template-areas:
+      "tag-selector city-selector"
+      "tag-selector place-selector";
+    row-gap: 1em;
+    column-gap: 1em;
     margin: 1em;
+
+    .tag-selector {
+      grid-area: tag-selector;
+    }
+
+    select {
+      appearance: none;
+      background-color: transparent;
+      color: var(--text-color);
+      border: none;
+      border-bottom: 1px solid var(--text-color);
+
+      option {
+        background-color: var(--bg-color);
+        font-family: 'Barlow'; // does not work on firefox, bug #1536148
+      }
+    }
+
+    .city {
+      grid-area: city-selector;
+    }
+
+    .place {
+      grid-area: place-selector;
+    }
   }
 
   .save {

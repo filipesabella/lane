@@ -12,17 +12,28 @@ export const Main = () => {
     localStorage.setItem('lane_previous_text', text);
   };
 
-  const [tags, setTags] = useState<Tag[]>(JSON.parse(
+  const allTags = api.loadTags();
+  const cityTags = allTags.filter(t => t.startsWith('city:'));
+  const placeTags = allTags.filter(t => t.startsWith('place:'));
+
+  const [selectedTags, setSelectedTags] = useState<Tag[]>(JSON.parse(
     localStorage.getItem('lane_previous_tags') || '[]'));
+
   const onChangeTags = (tags: Tag[]) => {
-    setTags(tags);
+    setSelectedTags(tags);
     localStorage.setItem('lane_previous_tags', JSON.stringify(tags));
   };
+
+  const [city, setCity] = useState<string | null>(null);
+  const [place, setPlace] = useState<string | null>(null);
 
   const [saving, setSaving] = useState(false);
   const save = async () => {
     setSaving(true);
-    toast.promise(api.save(text, tags), {
+    const allTags = [...new Set([...selectedTags, city, place])]
+      .filter(t => !!t) as Tag[];
+
+    toast.promise(api.save(text, allTags), {
       loading: 'Saving',
       success: 'Saved',
       error: 'Error when saving',
@@ -44,9 +55,21 @@ export const Main = () => {
         onChange={e => onChangeText(e.target.value)}
         value={text} />
     </div>
-    <TagSelector
-      selectedTags={tags}
-      onChange={onChangeTags} />
+    <div className="tags-container">
+      <TagSelector
+        selectedTags={selectedTags}
+        onChange={onChangeTags} />
+      <select className="city" defaultValue={''}
+        onChange={e => setCity(e.target.value)}>
+        <option value="" disabled hidden>Choose city ...</option>
+        {cityTags.map(t => <option>{t}</option>)}
+      </select>
+      <select className="place" defaultValue={''}
+        onChange={e => setPlace(e.target.value)}>
+        <option value="" disabled hidden>Choose place ...</option>
+        {placeTags.map(t => <option>{t}</option>)}
+      </select>
+    </div>
     <button
       disabled={text === '' || saving}
       className="save"
