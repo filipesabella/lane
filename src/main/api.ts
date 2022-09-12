@@ -31,10 +31,7 @@ export const api = {
         .from('lane_tags')
         .select() as any;
 
-      const encryptedTags = result.data.map((row: any) => row.text);
-
-      tagsCache = await Promise.all(
-        encryptedTags.map(decrypt));
+      tagsCache = result.data.map((row: any) => row.text)
     }
 
     return tagsCache;
@@ -48,7 +45,7 @@ export const api = {
 
     return await Promise.all((result.data || []).map(async (row: any) => {
       const text = await decrypt(row.text) as string;
-      const tags = await Promise.all(row.tags.map(decrypt)) as Tag[];
+      const tags = row.tags as Tag[];
 
       const e: Note = {
         id: row.id,
@@ -62,13 +59,10 @@ export const api = {
 
   save: async (text: string, tags: Tag[]): Promise<void> => {
     tagsCache = null as any;
-
-    const encryptedTags = await Promise.all(tags.map(encrypt));
-
     await supabase.from('lane_notes').insert({
       id: uuid(),
       text: await encrypt(text),
-      tags: encryptedTags,
+      tags: tags,
     });
   }
 };
