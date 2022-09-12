@@ -3,7 +3,7 @@ CREATE OR REPLACE FUNCTION denormalize_tags()
   LANGUAGE PLPGSQL AS
 $$
 BEGIN
-  DELETE FROM lane_tags;
+  DELETE FROM lane_tags WHERE "text" IS NOT NULL;
 
   INSERT INTO lane_tags
   SELECT UNNEST(lane_notes.tags) FROM lane_notes
