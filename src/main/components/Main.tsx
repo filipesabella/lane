@@ -5,23 +5,25 @@ import '../../style/Main.less';
 import { api, Tag } from '../api';
 import { TagSelector } from './TagSelector';
 
+let previousText = '';
+let previousTags: Tag[] = [];
+
 export const Main = () => {
-  const [text, setText] = useState(localStorage.getItem('lane_previous_text') || '');
+  const [text, setText] = useState(previousText);
   const onChangeText = (text: string) => {
     setText(text);
-    localStorage.setItem('lane_previous_text', text);
+    previousText = text;
   };
 
   const allTags = api.loadTags();
   const cityTags = allTags.filter(t => t.startsWith('city:'));
   const placeTags = allTags.filter(t => t.startsWith('place:'));
 
-  const [selectedTags, setSelectedTags] = useState<Tag[]>(JSON.parse(
-    localStorage.getItem('lane_previous_tags') || '[]'));
+  const [selectedTags, setSelectedTags] = useState<Tag[]>(previousTags);
 
   const onChangeTags = (tags: Tag[]) => {
     setSelectedTags(tags);
-    localStorage.setItem('lane_previous_tags', JSON.stringify(tags));
+    previousTags = tags;
   };
 
   const [city, setCity] = useState<string | null>(null);
