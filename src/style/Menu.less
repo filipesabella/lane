@@ -12,6 +12,11 @@
 
   a.active svg {
     stroke: var(--bg-color-lightest);
+
+    &.harp {
+      fill: var(--bg-color-lightest);
+      stroke: none;
+    }
   }
 
   svg {
@@ -21,8 +26,9 @@
     stroke: var(--bg-color-lighter);
     stroke-width: 1;
 
-    &.graph {
-      stroke-width: 2;
+    &.harp {
+      fill: var(--bg-color-lighter);
+      stroke: none;
     }
   }
 }
