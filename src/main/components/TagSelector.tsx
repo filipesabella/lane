@@ -12,8 +12,8 @@ export const TagSelector = ({ selectedTags, onChange }: Props) => {
   const [tags, setTags] = useState<Tag[]>([]);
 
   useEffect(() => {
-    api.loadTags().then(tags =>
-      setTags((tags.length === 0 ? ['create a tag'] : tags)));
+    const tags = api.loadTags();
+    setTags(tags.length === 0 ? ['create a tag'] : tags);
   }, []);
 
   const [criteria, setCriteria] = useState('');

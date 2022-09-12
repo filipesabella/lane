@@ -6,8 +6,8 @@ import '../../style/App.less';
 import { api } from '../api';
 import { Main } from './Main';
 import { Menu } from './Menu';
+import { Notes } from './Notes';
 import { Settings } from './Settings';
-import { Stats } from './Stats';
 
 export const App = () => {
   const [loading, setLoading] = useState(true);
@@ -40,7 +40,7 @@ export const App = () => {
     {!loading && <>
       <Routes>
         <Route path="/" element={<Main />} />
-        <Route path="/stats" element={<Stats />} />
+        <Route path="/notes" element={<Notes />} />
         <Route path="/settings" element={<Settings />} />
       </Routes>
       <Menu />

@@ -5,7 +5,7 @@ import '../../style/Menu.less';
 export const Menu = () => {
   return <div className="menu">
     <NavLink to="/">{homeIcon}</NavLink>
-    <NavLink to="/stats">{graphIcon}</NavLink>
+    <NavLink to="/notes">{graphIcon}</NavLink>
     <NavLink to="/settings">{settingsIcon}</NavLink>
   </div>;
 };
