@@ -19,7 +19,6 @@ export const TagSelector = ({ selectedTags, onChange }: Props) => {
   const [criteria, setCriteria] = useState('');
   const [showingDropdown, setShowingDropdown] = useState(false);
 
-
   const tagToggle = (tag: Tag, selected: boolean) => {
     const tags = selected
       ? selectedTags.concat(tag)
@@ -118,5 +117,6 @@ const Tag = ({ tag, selected, onChange }: TagProps) => {
 };
 
 function filterTag(t: Tag, criteria: string): boolean {
-  return t.toLowerCase().includes(criteria.toLowerCase());
+  return criteria.length === 0
+    || t.toLowerCase().includes(criteria.toLowerCase());
 }
