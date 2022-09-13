@@ -1,6 +1,8 @@
 import * as React from 'react';
 import { useEffect, useState } from 'react';
+import toast from 'react-hot-toast';
 import '../../style/Settings.less';
+import { api } from '../api';
 import { storage } from '../storage';
 
 export const Settings = () => {
@@ -20,6 +22,15 @@ export const Settings = () => {
 
   const save = () => {
     storage.storeSettings({ supabaseUrl, supabaseKey, encryptionPassword, });
+    toast('Saved');
+  };
+
+  const resync = () => {
+    toast.promise(api.resync(), {
+      loading: 'Resyncing',
+      success: 'Done',
+      error: 'Error when fetching',
+    });
   };
 
   return <div className="settings">
@@ -39,6 +50,8 @@ export const Settings = () => {
         type="password"
         placeholder="If you lose or change this all the data will be lost"
         onChange={e => setEncryptionPassword(e.currentTarget.value)} />
+      <span></span>
+      <span className="action" onClick={resync}>re-sync</span>
     </div>
     <button onClick={_ => save()}>save</button>
   </div>;

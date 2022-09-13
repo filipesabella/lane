@@ -3,27 +3,25 @@ import * as openpgp from 'openpgp';
 export const encrypt = (password: string) => async (text: string)
   : Promise<string> => {
   const encrypted = await openpgp.encrypt({
-    message: await openpgp.createMessage({ text }),
+    message: await openpgp.createMessage({ text, format: 'utf8' }),
     passwords: [password],
     format: 'binary',
   }) as Uint8Array; // the typedef is wrong
 
-  return encrypted.toString();
+  return Buffer.from(encrypted).toString('base64');
 };
 
-export const decrypt = (password: string) => async (encyptedText: string)
+export const decrypt = (password: string) => async (encryptedText: string)
   : Promise<string> => {
-  const deserializedBuffer = encyptedText.split(',');
-
   const encryptedMessage = await openpgp.readMessage({
-    binaryMessage: Uint8Array.from(deserializedBuffer as any),
+    binaryMessage: Buffer.from(encryptedText, 'base64'),
   });
 
   const { data: decrypted } = await openpgp.decrypt({
     message: encryptedMessage,
     passwords: [password],
-    format: 'binary',
+    format: 'utf8',
   });
 
-  return String.fromCharCode.apply(null, decrypted);
+  return decrypted as string;
 };
