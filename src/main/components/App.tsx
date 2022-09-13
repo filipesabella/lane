@@ -11,6 +11,7 @@ import { Settings } from './Settings';
 
 export const App = () => {
   const [loading, setLoading] = useState(true);
+  const [initialLoadError, setInitialLoadError] = useState(false);
   useEffect(() => {
     toast.promise(api.sync(), {
       loading: 'Loading',
@@ -25,7 +26,8 @@ export const App = () => {
         duration: 1000,
         icon: null,
       },
-    }).then(() => setLoading(false));
+    }).catch(() => setInitialLoadError(true))
+      .finally(() => setLoading(false));
   }, []);
 
   return <div id="app">
@@ -39,8 +41,8 @@ export const App = () => {
       }} />
     {!loading && <>
       <Routes>
-        <Route path="/" element={<Main />} />
-        <Route path="/notes" element={<Notes />} />
+        {!initialLoadError && <Route path="/" element={<Main />} />}
+        {!initialLoadError && <Route path="/notes" element={<Notes />} />}
         <Route path="/settings" element={<Settings />} />
       </Routes>
       <Menu />
