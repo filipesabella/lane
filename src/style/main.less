@@ -1,5 +1,6 @@
 #app>.main {
   flex: 1;
+  overflow: auto;
   display: flex;
   flex-direction: column;
   background: var(--bg-color);
@@ -9,6 +10,7 @@
     flex: 1;
     margin: 1em;
     margin-bottom: 1em;
+    min-height: calc(100vh - 5em);
 
     textarea {
       width: 100%;
