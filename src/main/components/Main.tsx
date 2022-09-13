@@ -64,6 +64,7 @@ export const Main = () => {
     }).then(() => {
       setSaving(false);
       onChangeText('');
+      document.querySelector('#app .main')?.scrollTo(0, 0);
     });
   };
 

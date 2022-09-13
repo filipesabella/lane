@@ -1,5 +1,5 @@
 .cache/
 dist/
 node_modules/
-token
+.vs_code/
 
