@@ -68,7 +68,8 @@ export const Main = () => {
   };
 
   return <div className="main">
-    <div className="textarea-container">
+    <div className="textarea-container"
+      data-replicated-value={text}>
       <textarea autoFocus
         placeholder="type away"
         onChange={e => onChangeText(e.target.value)}
