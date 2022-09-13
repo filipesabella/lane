@@ -50,7 +50,8 @@ export const Main = () => {
     const allTags = selectedTags
       .concat(city ? city : [])
       .concat(place ? place : [])
-      .concat(ageTag ? ageTag : []);
+      .concat(ageTag ? ageTag : [])
+      .map(t => t.trim());
 
     toast.promise(api.save(text, [...new Set(allTags)]), {
       loading: 'Saving',
