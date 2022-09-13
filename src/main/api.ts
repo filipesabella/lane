@@ -44,7 +44,8 @@ export const api = {
     const result = await fetchAll(mostRecentLocalNoteId);
     // const result = { data: [] };
 
-    const newNotes = await supabaseResultToNotes(result);
+    const newNotes = await Promise.all(((result.data || []) as Note[])
+      .map(dbNoteToNote));
 
     allNotes = localNotes.concat(newNotes);
 
@@ -55,12 +56,8 @@ export const api = {
       JSON.stringify(localNotes.concat(newNotes)));
   },
   resync: async (): Promise<void> => {
-    const allNotes = await supabaseResultToNotes(await fetchAll(oldUUID));
-
-    allTags = [...new Set(allNotes
-      .reduce((tags, n) => tags.concat(n.tags), [] as Tag[]))];
-
-    localStorage.setItem(localStorateNotesKey, JSON.stringify(allNotes));
+    localStorage.setItem(localStorateNotesKey, '[]');
+    await api.sync();
   },
   loadTags: (): Tag[] => {
     return allTags;
@@ -105,10 +102,6 @@ async function fetchAll(id: string): Promise<any> {
   } else {
     return result;
   }
-}
-
-async function supabaseResultToNotes(result: any): Promise<Note[]> {
-  return await Promise.all(((result.data || []) as Note[]).map(dbNoteToNote));
 }
 
 async function dbNoteToNote(dbNote: any): Promise<Note> {
