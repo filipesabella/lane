@@ -20,8 +20,9 @@
   .tags-container {
     display: grid;
     grid-template-areas:
-      "tag-selector city-selector"
-      "tag-selector place-selector";
+      "tag-selector tag-selector tag-selector"
+      "age-selector city-selector place-selector";
+    grid-template-columns: auto 1fr 1fr;
     row-gap: 1em;
     column-gap: 1em;
     margin: 1em;
@@ -40,6 +41,16 @@
       option {
         background-color: var(--bg-color);
         font-family: 'Barlow'; // does not work on firefox, bug #1536148
+      }
+    }
+
+    .age {
+      grid-area: age-selector;
+      display: flex;
+      column-gap: .3em;
+
+      input {
+        width: 2em;
       }
     }
 

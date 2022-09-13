@@ -7,6 +7,8 @@ import { TagSelector } from './TagSelector';
 
 let previousText = '';
 let previousTags: Tag[] = [];
+let previousAgeMin: string = '';
+let previousAgeMax: string = '';
 
 export const Main = () => {
   const [text, setText] = useState(previousText);
@@ -29,13 +31,28 @@ export const Main = () => {
   const [city, setCity] = useState<string | null>(null);
   const [place, setPlace] = useState<string | null>(null);
 
+  const [ageMin, setAgeMin] = useState(previousAgeMin);
+  const onChangeAgeMin = (age: string) => {
+    setAgeMin(age);
+    previousAgeMin = age;
+  };
+
+  const [ageMax, setAgeMax] = useState(previousAgeMax);
+  const onChangeAgeMax = (age: string) => {
+    setAgeMax(age);
+    previousAgeMax = age;
+  };
+
   const [saving, setSaving] = useState(false);
   const save = async () => {
     setSaving(true);
-    const allTags = [...new Set([...selectedTags, city, place])]
-      .filter(t => !!t) as Tag[];
+    const ageTag = ageMin ? 'age:' + ageMin + (ageMax ? '-' + ageMax : '') : '';
+    const allTags = selectedTags
+      .concat(city ? city : [])
+      .concat(place ? place : [])
+      .concat(ageTag ? ageTag : []);
 
-    toast.promise(api.save(text, allTags), {
+    toast.promise(api.save(text, [...new Set(allTags)]), {
       loading: 'Saving',
       success: 'Saved',
       error: 'Error when saving',
@@ -61,6 +78,12 @@ export const Main = () => {
       <TagSelector
         selectedTags={selectedTags}
         onChange={onChangeTags} />
+      <div className="age">
+        <label>Age</label>
+        <input value={ageMin} onChange={e => onChangeAgeMin(e.target.value)} />
+        -
+        <input value={ageMax} onChange={e => onChangeAgeMax(e.target.value)} />
+      </div>
       <select className="city" defaultValue={''}
         onChange={e => setCity(e.target.value)}>
         <option value="" disabled hidden>Choose city ...</option>
