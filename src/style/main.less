@@ -32,9 +32,10 @@
   .tags-container {
     display: grid;
     grid-template-areas:
-      "tag-selector tag-selector tag-selector"
-      "age-selector city-selector place-selector";
-    grid-template-columns: auto 1fr 1fr;
+      "tag-selector tag-selector"
+      "age-selector mood-selector"
+      "city-selector place-selector";
+    grid-template-columns: 1fr 1fr;
     row-gap: 1em;
     column-gap: 1em;
     margin: 1em;
@@ -60,10 +61,15 @@
       grid-area: age-selector;
       display: flex;
       column-gap: .3em;
+      align-items: center;
 
       input {
         width: 2em;
       }
+    }
+
+    .mood {
+      grid-area: mood-selector;
     }
 
     .city {

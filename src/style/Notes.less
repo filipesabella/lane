@@ -19,4 +19,41 @@
       }
     }
   }
+
+  .edit-dialog {
+    background-color: rgba(0, 0, 0, .9);
+    filter: blur(0);
+    display: grid;
+    place-content: center;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    .container {
+      min-width: 30em;
+      display: flex;
+      flex-direction: column;
+      row-gap: 1em;
+
+      textarea {
+        width: 100%;
+        height: 30em;
+      }
+
+      .actions {
+        display: flex;
+        column-gap: 1em;
+        place-content: end;
+        button {
+          cursor: pointer;
+        }
+        .close {
+          background-color: transparent;
+          color: var(--text-color);
+          border: none;
+        }
+      }
+    }
+  }
 }
