@@ -41,7 +41,8 @@ export const api = {
       return note.id > mostRecent ? note.id : mostRecent;
     }, oldUUID);
 
-    const result = await fetchAll(mostRecentLocalNote);
+    // const result = await fetchAll(mostRecentLocalNote);
+    const result = { data: [] };
 
     const newNotes = await Promise.all(((result.data || []) as Note[])
       .map<Promise<Note>>(async dbNote => ({
