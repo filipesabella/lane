@@ -37,19 +37,14 @@ export const api = {
   sync: async (): Promise<void> => {
     const localNotes: Note[] = JSON.parse(localStorage
       .getItem(localStorateNotesKey) || '[]');
-    const mostRecentLocalNote = localNotes.reduce((mostRecent, note) => {
+    const mostRecentLocalNoteId = localNotes.reduce((mostRecent, note) => {
       return note.id > mostRecent ? note.id : mostRecent;
     }, oldUUID);
 
-    const result = await fetchAll(mostRecentLocalNote);
+    const result = await fetchAll(mostRecentLocalNoteId);
     // const result = { data: [] };
 
-    const newNotes = await Promise.all(((result.data || []) as Note[])
-      .map<Promise<Note>>(async dbNote => ({
-        ...dbNote,
-        text: await decrypt(dbNote.text),
-        tags: await Promise.all(dbNote.tags.map(decrypt)),
-      })));
+    const newNotes = await supabaseResultToNotes(result);
 
     allNotes = localNotes.concat(newNotes);
 
@@ -58,6 +53,14 @@ export const api = {
 
     localStorage.setItem(localStorateNotesKey,
       JSON.stringify(localNotes.concat(newNotes)));
+  },
+  resync: async (): Promise<void> => {
+    const allNotes = await supabaseResultToNotes(await fetchAll(oldUUID));
+
+    allTags = [...new Set(allNotes
+      .reduce((tags, n) => tags.concat(n.tags), [] as Tag[]))];
+
+    localStorage.setItem(localStorateNotesKey, JSON.stringify(allNotes));
   },
   loadTags: (): Tag[] => {
     return allTags;
@@ -102,6 +105,18 @@ async function fetchAll(id: string): Promise<any> {
   } else {
     return result;
   }
+}
+
+async function supabaseResultToNotes(result: any): Promise<Note[]> {
+  return await Promise.all(((result.data || []) as Note[]).map(dbNoteToNote));
+}
+
+async function dbNoteToNote(dbNote: any): Promise<Note> {
+  return {
+    ...dbNote,
+    text: await decrypt(dbNote.text),
+    tags: await Promise.all(dbNote.tags.map(decrypt)),
+  };
 }
 
 // https://github.com/maxtomczyk/sequential-uuid
