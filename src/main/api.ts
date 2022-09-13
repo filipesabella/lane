@@ -66,8 +66,6 @@ export const api = {
     return allNotes;
   },
   save: async (text: string, tags: Tag[]): Promise<void> => {
-    // surely syncing by hand will lead to no bugs
-
     const id = sequentialUUID();
 
     await supabase.from(supabaseNotesTable).insert({
@@ -76,17 +74,33 @@ export const api = {
       tags: await Promise.all(tags.map(encrypt)),
     });
 
-    allTags = [...new Set(allTags.concat(tags))];
-    allNotes = allNotes.concat({
+    updateLocalCache({
       id,
       created_at: new Date().toISOString(),
       text,
       tags,
     });
+  },
+  update: async (note: Note): Promise<void> => {
+    await supabase.from(supabaseNotesTable).update({
+      id: note.id,
+      text: await encrypt(note.text),
+      tags: await Promise.all(note.tags.map(encrypt)),
+    });
 
-    localStorage.setItem(localStorateNotesKey, JSON.stringify(allNotes));
+    updateLocalCache(note);
   }
 };
+
+// surely syncing by hand will surely lead to no bugs at all, ever
+function updateLocalCache(note: Note): void {
+  allTags = [...new Set(allTags.concat(note.tags))];
+  allNotes = allNotes.find(n => n.id === note.id)
+    ? allNotes.map(n => n.id === note.id ? note : n)
+    : allNotes.concat(note);
+
+  localStorage.setItem(localStorateNotesKey, JSON.stringify(allNotes));
+}
 
 async function fetchAll(id: string): Promise<any> {
   const result = await supabase
