@@ -43,6 +43,8 @@ export const Main = () => {
     previousAgeMax = age;
   };
 
+  const [mood, setMood] = useState('0');
+
   const [saving, setSaving] = useState(false);
   const save = async () => {
     setSaving(true);
@@ -51,6 +53,7 @@ export const Main = () => {
       .concat(city ? city : [])
       .concat(place ? place : [])
       .concat(ageTag ? ageTag : [])
+      .concat(moodTag(mood))
       .map(t => t.trim());
 
     toast.promise(api.save(text, [...new Set(allTags)]), {
@@ -87,6 +90,11 @@ export const Main = () => {
         -
         <input value={ageMax} onChange={e => onChangeAgeMax(e.target.value)} />
       </div>
+      <div className="mood">
+        <label>Mood (bad - neutral - good)</label>
+        <input type="range" min="-1" max="1" value={mood}
+          onChange={e => setMood(e.target.value)} />
+      </div>
       <select className="city" defaultValue={''}
         onChange={e => setCity(e.target.value)}>
         <option value="" disabled hidden>Choose city ...</option>
@@ -104,3 +112,11 @@ export const Main = () => {
       onClick={save}>{saving ? 'saving ...' : 'save'}</button>
   </div>;
 };
+
+function moodTag(moodNumber: string): string {
+  return 'mood:' + (moodNumber === '0'
+    ? 'neutral'
+    : moodNumber === '1'
+      ? 'good'
+      : 'bad');
+}
