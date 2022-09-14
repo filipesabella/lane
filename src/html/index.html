@@ -19,7 +19,9 @@
 </body>
 
 <script>
-  navigator.serviceWorker.register('../main/service-worker.js');
+  navigator &&
+    navigator.serviceWorker &&
+    navigator.serviceWorker.register('../main/service-worker.js');
 </script>
 <script src='../main/index.tsx'></script>
 

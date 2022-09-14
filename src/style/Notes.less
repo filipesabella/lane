@@ -9,15 +9,30 @@
 
     tr {
       background: var(--bg-color);
-    }
 
-    td {
-      padding: .5em;
+      td {
+        padding: .5em;
 
-      &.date {
-        white-space: nowrap;
+        &.actions {
+          button {
+            visibility: hidden;
+          }
+
+          &:hover {
+            button {
+              visibility: visible;
+            }
+          }
+        }
+      }
+
+      &:hover {
+        td.actions button {
+          visibility: visible;
+        }
       }
     }
+
   }
 
   .edit-dialog {
@@ -30,6 +45,7 @@
     bottom: 0;
     left: 0;
     right: 0;
+
     .container {
       min-width: 30em;
       display: flex;
@@ -45,9 +61,11 @@
         display: flex;
         column-gap: 1em;
         place-content: end;
+
         button {
           cursor: pointer;
         }
+
         .close {
           background-color: transparent;
           color: var(--text-color);
