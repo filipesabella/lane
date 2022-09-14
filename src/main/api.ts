@@ -35,7 +35,6 @@ const supabaseNotesTable = 'lane_notes';
 
 type ProgressCallback = (done: number, total: number) => void;
 
-
 export const api = {
   sync: async (progress: ProgressCallback): Promise<void> => {
     const localNotes: Note[] = JSON.parse(localStorage

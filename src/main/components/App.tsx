@@ -19,9 +19,9 @@ export const App = () => {
   const [loading, setLoading] = useState(true);
   const [initialLoadError, setInitialLoadError] = useState(false);
 
-  if (window.location.search.includes('reset')) {
+  // if (window.location.search.includes('reset')) {
     api.clearLocalData();
-  }
+  // }
 
   useEffect(() => {
     toast.promise(api.sync((done, total) => {
@@ -36,6 +36,9 @@ export const App = () => {
         position: 'top-center',
         duration: 1000,
         icon: null,
+      },
+      error: {
+        duration: 1000,
       },
     }).catch(e => {
       console.error(e);
