@@ -19,9 +19,9 @@ export const App = () => {
   const [loading, setLoading] = useState(true);
   const [initialLoadError, setInitialLoadError] = useState(false);
 
-  // if (window.location.search.includes('reset')) {
+  if (window.location.search.includes('reset')) {
     api.clearLocalData();
-  // }
+  }
 
   useEffect(() => {
     toast.promise(api.sync((done, total) => {

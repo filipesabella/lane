@@ -44,7 +44,7 @@ export const api = {
       return note.id > mostRecent ? note.id : mostRecent;
     }, oldUUID);
 
-    const result = {data: []} as any; //await fetchAll(mostRecentLocalNoteId);
+    const result = await fetchAll(mostRecentLocalNoteId);
 
     const worker = new Worker('decrypting-worker.ts');
     const total = result.data.length;
