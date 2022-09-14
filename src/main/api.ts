@@ -74,9 +74,8 @@ export const api = {
     localStorage.setItem(localStorateNotesKey,
       JSON.stringify(localNotes.concat(newNotes)));
   },
-  resync: async (): Promise<void> => {
+  clearLocalData: async (): Promise<void> => {
     localStorage.setItem(localStorateNotesKey, '[]');
-    await api.sync(() => { });
   },
   loadTags: (): Tag[] => {
     return allTags;
