@@ -82,13 +82,32 @@ export const api = {
     });
   },
   update: async (note: Note): Promise<void> => {
-    await supabase.from(supabaseNotesTable).update({
-      id: note.id,
+    // inserting and deleting instead of simply updating to simplify syncing
+    // between devices. by updating we need to manually "resync" each client,
+    // by doing it like this the automatic syncing process works.
+    // ps: supabase doesn't have transactions yet.
+
+    const oldId = note.id;
+    const newId = sequentialUUID();
+
+    await supabase.from(supabaseNotesTable).insert({
+      id: newId,
       text: await encrypt(note.text),
       tags: await Promise.all(note.tags.map(encrypt)),
     });
 
-    updateLocalCache(note);
+    try {
+      await supabase.from(supabaseNotesTable)
+        .delete()
+        .match({ id: oldId });
+    } catch (e) {
+      alert(`Faield to delete after inserting ${e}`);
+    }
+
+    updateLocalCache({
+      ...note,
+      id: newId,
+    });
   }
 };
 
