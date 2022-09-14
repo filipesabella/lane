@@ -49,30 +49,34 @@ export const api = {
 
     const worker = new Worker('decrypting-worker.ts');
     const total = result.data.length;
-    const newNotes = await new Promise<Note[]>((resolve) => {
-      const notes: Note[] = [];
-      worker.addEventListener('message', (message: WorkerResponseMessage) => {
-        progress(notes.length, total);
-        notes.push(message.data.note);
+    if (total > 0) {
+      const newNotes = await new Promise<Note[]>((resolve) => {
+        const notes: Note[] = [];
+        worker.addEventListener('message', (message: WorkerResponseMessage) => {
+          progress(notes.length, total);
+          notes.push(message.data.note);
 
-        if (notes.length === total) {
-          worker.terminate();
-          resolve(notes);
-        }
+          if (notes.length === total) {
+            worker.terminate();
+            resolve(notes);
+          }
+        });
+
+        result.data.forEach((dbNote: any) => {
+          worker.postMessage({ dbNote, password: encryptionPassword });
+        });
       });
 
-      result.data.forEach((dbNote: any) => {
-        worker.postMessage({ dbNote, password: encryptionPassword });
-      });
-    });
+      allNotes = localNotes.concat(newNotes);
+      allTags = [...new Set(allNotes
+        .reduce((tags, n) => tags.concat(n.tags), [] as Tag[]))];
 
-    allNotes = localNotes.concat(newNotes);
-
-    allTags = [...new Set(allNotes
-      .reduce((tags, n) => tags.concat(n.tags), [] as Tag[]))];
-
-    localStorage.setItem(localStorateNotesKey,
-      JSON.stringify(localNotes.concat(newNotes)));
+      localStorage.setItem(localStorateNotesKey, JSON.stringify(allNotes));
+    } else {
+      allNotes = [...localNotes];
+      allTags = [...new Set(localNotes
+        .reduce((tags, n) => tags.concat(n.tags), [] as Tag[]))];
+    }
   },
   clearLocalData: async (): Promise<void> => {
     localStorage.setItem(localStorateNotesKey, '[]');
