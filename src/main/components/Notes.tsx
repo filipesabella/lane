@@ -32,7 +32,9 @@ export const Notes = () => {
           return <tr key={n.id}>
             <td>{n.text}</td>
             <td>{n.tags.join(',')}</td>
-            <td><button onClick={() => setSelectedNote(n)}>edit</button></td>
+            <td className="actions">
+              <button onClick={() => setSelectedNote(n)}>edit</button>
+            </td>
           </tr>;
         })}
       </tbody>
