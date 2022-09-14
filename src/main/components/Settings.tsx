@@ -26,7 +26,7 @@ export const Settings = () => {
   };
 
   const resync = () => {
-    api.resync();
+    api.clearLocalData();
     window.location.reload();
   };
 
