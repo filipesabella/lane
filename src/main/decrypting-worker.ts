@@ -3,21 +3,14 @@ import { decrypt } from './lib/encryption';
 
 export type WorkerResponseMessage = {
   data: {
-    type: 'progress' | 'done';
-    notes: Note[];
-    doneCount: number;
+    note: Note;
   }
 };
 
-addEventListener('message', message => {
-  const { notes, password, } = message.data;
-
-  let doneCount = 0;
-  Promise.all(notes.map(async (dbNote: any) => {
-    const note = await dbNoteToNote(dbNote, password);
-    postMessage({ type: 'progress', 'doneCount': ++doneCount });
-    return note;
-  })).then((notes: any) => postMessage({ type: 'done', 'notes': notes }));
+addEventListener('message', async message => {
+  const { dbNote, password, } = message.data;
+  const note = await dbNoteToNote(dbNote, password);
+  postMessage({ note });
 });
 
 async function dbNoteToNote(dbNote: any, password: string): Promise<any> {
