@@ -76,7 +76,6 @@ export const api = {
   },
   resync: async (): Promise<void> => {
     localStorage.setItem(localStorateNotesKey, '[]');
-    await api.sync(() => { });
   },
   loadTags: (): Tag[] => {
     return allTags;

@@ -26,11 +26,8 @@ export const Settings = () => {
   };
 
   const resync = () => {
-    toast.promise(api.resync(), {
-      loading: 'Resyncing',
-      success: 'Done',
-      error: 'Error when fetching',
-    });
+    api.resync();
+    window.location.reload();
   };
 
   return <div className="settings">
