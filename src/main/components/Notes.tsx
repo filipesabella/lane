@@ -5,7 +5,7 @@ import '../../style/Notes.less';
 import { api, Note } from '../api';
 
 export const Notes = () => {
-  const notes = api.loadNotes();
+  const notes = api.loadNotes().sort((a, b) => b.id.localeCompare(a.id));
 
   const [selectedNote, setSelectedNote] = useState<Note | null>(null);
 
