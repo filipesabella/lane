@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useEffect, useState } from 'react';
-import toast, { Toaster } from 'react-hot-toast';
+import toast, { Toaster, ToastOptions } from 'react-hot-toast';
 import { Route, Routes } from 'react-router-dom';
 import '../../style/App.less';
 import { api } from '../api';
@@ -9,25 +9,33 @@ import { Menu } from './Menu';
 import { Notes } from './Notes';
 import { Settings } from './Settings';
 
+const loadingToastProps: ToastOptions = {
+  id: 'sync-loading',
+  position: 'top-center',
+  duration: Infinity,
+};
+
 export const App = () => {
   const [loading, setLoading] = useState(true);
   const [initialLoadError, setInitialLoadError] = useState(false);
   useEffect(() => {
-    toast.promise(api.sync(), {
+    toast.promise(api.sync((done, total) => {
+      toast.loading(`Decrypting ${done}/${total}`, loadingToastProps);
+    }), {
       loading: 'Loading',
       success: 'Ready',
       error: 'Error when fetching',
     }, {
-      loading: {
-        position: 'top-center',
-      },
+      loading: loadingToastProps,
       success: {
         position: 'top-center',
         duration: 1000,
         icon: null,
       },
-    }).catch(() => setInitialLoadError(true))
-      .finally(() => setLoading(false));
+    }).catch(e => {
+      console.error(e);
+      setInitialLoadError(true);
+    }).finally(() => setLoading(false));
   }, []);
 
   return <div id="app">

@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import { WorkerResponseMessage } from './decrypting-worker';
 import * as encryption from './lib/encryption';
 import { storage } from './storage';
 
@@ -17,7 +18,6 @@ const {
   encryptionPassword, } = storage.loadSettings();
 
 const encrypt = encryption.encrypt(encryptionPassword);
-const decrypt = encryption.decrypt(encryptionPassword);
 
 const supabase = createClient(supabaseUrl || 'error', supabaseKey || 'error');
 
@@ -33,19 +33,35 @@ const maxResultsPerCall = 100;
 const localStorateNotesKey = 'lane_notes';
 const supabaseNotesTable = 'lane_notes';
 
+type ProgressCallback = (done: number, total: number) => void;
+
+
 export const api = {
-  sync: async (): Promise<void> => {
+  sync: async (progress: ProgressCallback): Promise<void> => {
     const localNotes: Note[] = JSON.parse(localStorage
       .getItem(localStorateNotesKey) || '[]');
+
     const mostRecentLocalNoteId = localNotes.reduce((mostRecent, note) => {
       return note.id > mostRecent ? note.id : mostRecent;
     }, oldUUID);
 
     const result = await fetchAll(mostRecentLocalNoteId);
-    // const result = { data: [] };
 
-    const newNotes = await Promise.all(((result.data || []) as Note[])
-      .map(dbNoteToNote));
+    const worker = new Worker('decrypting-worker.ts');
+    const total = result.data.length;
+    const newNotes: Note[] = await new Promise((resolve) => {
+      progress(0, total);
+      worker.addEventListener('message', (message: WorkerResponseMessage) => {
+        if (message.data.type === 'progress') {
+          progress(message.data.doneCount, total);
+        } else if (message.data.type === 'done') {
+          resolve(message.data.notes);
+          worker.terminate();
+        }
+      });
+
+      worker.postMessage({ notes: result.data, password: encryptionPassword });
+    });
 
     allNotes = localNotes.concat(newNotes);
 
@@ -57,7 +73,7 @@ export const api = {
   },
   resync: async (): Promise<void> => {
     localStorage.setItem(localStorateNotesKey, '[]');
-    await api.sync();
+    await api.sync(() => { });
   },
   loadTags: (): Tag[] => {
     return allTags;
@@ -131,18 +147,11 @@ async function fetchAll(id: string): Promise<any> {
   if (result.data && result.data.length >= maxResultsPerCall) {
     const next = await fetchAll(result.data[result.data.length - 1].id);
     result.data = result.data.concat(next ? next.data : []);
+    debugger;
     return result;
   } else {
     return result;
   }
-}
-
-async function dbNoteToNote(dbNote: any): Promise<Note> {
-  return {
-    ...dbNote,
-    text: await decrypt(dbNote.text),
-    tags: await Promise.all(dbNote.tags.map(decrypt)),
-  };
 }
 
 // https://github.com/maxtomczyk/sequential-uuid
