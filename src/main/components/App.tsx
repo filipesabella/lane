@@ -17,6 +17,9 @@ const loadingToastProps: ToastOptions = {
 
 export const App = () => {
   const [loading, setLoading] = useState(true);
+
+  // this is used on first time opening the app, as the settings haven't been
+  // set yet
   const [initialLoadError, setInitialLoadError] = useState(false);
 
   if (window.location.search.includes('reset')) {
@@ -57,7 +60,8 @@ export const App = () => {
       }} />
     {!loading && <>
       <Routes>
-        {!initialLoadError && <Route path="/" element={<Main />} />}
+        {!initialLoadError && <Route path={'/'} element={<Main />} />}
+        {!initialLoadError && <Route path={'/index.html'} element={<Main />} />}
         {!initialLoadError && <Route path="/notes" element={<Notes />} />}
         <Route path="/settings" element={<Settings />} />
       </Routes>
