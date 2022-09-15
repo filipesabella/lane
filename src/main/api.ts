@@ -85,8 +85,7 @@ export const api = {
       localStorage.setItem(localStorateNotesKey, JSON.stringify(allNotes));
     } else {
       allNotes = [...localNotes];
-      allTags = [...new Set(localNotes
-        .reduce((tags, n) => tags.concat(n.tags), [] as Tag[]))];
+      allTags = deriveTags(localNotes);
     }
   },
   clearLocalData: async (): Promise<void> => {
