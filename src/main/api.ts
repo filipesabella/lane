@@ -21,8 +21,8 @@ const encrypt = encryption.encrypt(encryptionPassword);
 
 const supabase = createClient(supabaseUrl || 'error', supabaseKey || 'error');
 
-let allNotes: Note[] = null as any;
-let allTags: Tag[] = null as any;
+let allNotes: Note[] = [] as any;
+let allTags: Tag[] = [] as any;
 
 // generated using the sequentialUUID forcing the date to 1970
 const oldUUID = '00002a30-7177-4240-9e2d-c7437ea12e1a';
@@ -35,11 +35,11 @@ const supabaseNotesTable = 'lane_notes';
 
 type ProgressCallback = (done: number, total: number) => void;
 
-
 export const api = {
   sync: async (progress: ProgressCallback): Promise<void> => {
-    const localNotes: Note[] = JSON.parse(localStorage
-      .getItem(localStorateNotesKey) || '[]');
+
+    const localNotes: Note[] =
+      JSON.parse(localStorage.getItem(localStorateNotesKey) || '[]');
 
     const mostRecentLocalNoteId = localNotes.reduce((mostRecent, note) => {
       return note.id > mostRecent ? note.id : mostRecent;
@@ -62,9 +62,21 @@ export const api = {
           }
         });
 
-        result.data.forEach((dbNote: any) => {
-          worker.postMessage({ dbNote, password: encryptionPassword });
-        });
+        // not throttling it like this was actually making firefox on android
+        // simply abort everything and refresh the damn page, and only in prod,
+        // not when running against 192.168
+        let index = 0;
+        const postMessage = () => {
+          worker.postMessage({
+            dbNote: result.data[index++],
+            password: encryptionPassword,
+          });
+
+          if (index < total) {
+            window.setTimeout(postMessage, 100);
+          }
+        };
+        postMessage();
       });
 
       allNotes = localNotes.concat(newNotes);
@@ -153,7 +165,6 @@ async function fetchAll(id: string): Promise<any> {
   if (result.data && result.data.length >= maxResultsPerCall) {
     const next = await fetchAll(result.data[result.data.length - 1].id);
     result.data = result.data.concat(next ? next.data : []);
-    debugger;
     return result;
   } else {
     return result;

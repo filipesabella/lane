@@ -37,6 +37,9 @@ export const App = () => {
         duration: 1000,
         icon: null,
       },
+      error: {
+        duration: 1000,
+      },
     }).catch(e => {
       console.error(e);
       setInitialLoadError(true);
