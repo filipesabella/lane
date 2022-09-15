@@ -57,7 +57,8 @@ export const App = () => {
       }} />
     {!loading && <>
       <Routes>
-        {!initialLoadError && <Route path="/" element={<Main />} />}
+        {!initialLoadError && <Route path={'/'} element={<Main />} />}
+        {!initialLoadError && <Route path={'/index.html'} element={<Main />} />}
         {!initialLoadError && <Route path="/notes" element={<Notes />} />}
         <Route path="/settings" element={<Settings />} />
       </Routes>
