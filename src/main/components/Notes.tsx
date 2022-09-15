@@ -26,6 +26,7 @@ export const Notes = () => {
   };
 
   return <div className="notes">
+    <p>{notes.length} notes</p>
     <table>
       <tbody>
         {notes.map(n => {
