@@ -80,14 +80,12 @@ export const api = {
       });
 
       allNotes = localNotes.concat(newNotes);
-      allTags = [...new Set(allNotes
-        .reduce((tags, n) => tags.concat(n.tags), [] as Tag[]))];
+      allTags = deriveTags(allNotes);
 
       localStorage.setItem(localStorateNotesKey, JSON.stringify(allNotes));
     } else {
       allNotes = [...localNotes];
-      allTags = [...new Set(localNotes
-        .reduce((tags, n) => tags.concat(n.tags), [] as Tag[]))];
+      allTags = deriveTags(localNotes);
     }
   },
   clearLocalData: async (): Promise<void> => {
@@ -141,18 +139,28 @@ export const api = {
     updateLocalCache({
       ...note,
       id: newId,
-    });
+    }, note);
   }
 };
 
 // surely syncing by hand will surely lead to no bugs at all, ever
-function updateLocalCache(note: Note): void {
-  allTags = [...new Set(allTags.concat(note.tags))];
-  allNotes = allNotes.find(n => n.id === note.id)
-    ? allNotes.map(n => n.id === note.id ? note : n)
-    : allNotes.concat(note);
+function updateLocalCache(toUpsert: Note, toDelete?: Note): void {
+  if (toDelete) {
+    allNotes = allNotes.filter(n => n.id !== toDelete.id);
+  }
+
+  allNotes = allNotes.find(n => n.id === toUpsert.id)
+    ? allNotes.map(n => n.id === toUpsert.id ? toUpsert : n)
+    : allNotes.concat(toUpsert);
+
+  allTags = deriveTags(allNotes);
 
   localStorage.setItem(localStorateNotesKey, JSON.stringify(allNotes));
+}
+
+function deriveTags(notes: Note[]): Tag[] {
+  return [...new Set(notes
+    .reduce((tags, n) => tags.concat(n.tags), [] as Tag[]))];
 }
 
 async function fetchAll(id: string): Promise<any> {
